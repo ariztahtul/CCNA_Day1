@@ -1,0 +1,335 @@
+TASK3: DUAL STATIC ROUTES
+P1
+conf t
+ip route 192.168.1.128 255.255.255.224 10.2.1.2 1
+ip route 192.168.1.128 255.255.255.224 10.2.1.1 100
+
+P2
+conf t
+ip route 192.168.1.128 255.255.255.224 10.2.1.1 1
+ip route 192.168.1.128 255.255.255.224 10.2.1.2 100
+
+
+TASK4: DEFAULT STATIC ROUTES
+P1
+conf t 
+ip route 0.0.0.0 0.0.0.0 10.2.1.1 1
+ip route 0.0.0.0 0.0.0.0 10.2.1.2 10
+
+P2
+conf t 
+ip route 0.0.0.0 0.0.0.0 10.2.1.2 1
+ip route 0.0.0.0 0.0.0.0 10.2.1.1 10
+
+
+TASK5: Learning About Dynamic 
+
+EIGRP: Enhance Interior gateway routing protocol
+- the Fastest routing protocol: andar agad
+- CISCO invention/Prorietary only on CISCO devices
+- an merong EIGRP: mayaman ang company/multinational madami bonus
+
+@D1
+conf t
+router eigrp CCNPLEVEL
+address-family ipv4 unicast autonomous-system 100
+network 10.1.4.4 0.0.0.3
+network 10.2.1.0 0.0.0.255
+network 10.2.2.0 0.0.0.255
+network 192.168.1.128 0.0.0.31
+end
+
+@D2
+conf t
+router eigrp CCNPLEVEL
+address-family ipv4 unicast autonomous-system 100
+network 10.1.4.8 0.0.0.3
+network 10.2.1.0 0.0.0.255
+network 10.2.2.0 0.0.0.255
+network 192.168.1.128 0.0.0.31
+end
+
+@R4
+conf t
+router eigrp 100
+network 10.1.4.4 0.0.0.3
+network 10.1.4.8 0.0.0.3
+
+How to check if EIGRP is working
+
+1. show ip protocols
+	4 sources
+2. show ip eigrp neighbor
+	4 sources
+3. show ip eigrp traffic
+  SIA-Queries sent/received: 0/0 (StuckInActive)
+  SIA-Replies sent/received: 0/0
+4. show ip eigrp topology
+	lahat "P", walang "A", - P= StableNetwork
+5. show ip route eigrp
+	dapat tatlo ang via
+
+EXAM QUESTION x3:
+P1
+
+conf t
+ip route 10.1.4.4 255.255.255.252 10.2.1.3 20
+ip route 10.1.4.5 255.255.255.255 10.2.1.4
+router eigrp 100
+no auto-summary
+network 10.0.0.0
+
+
+TASK6: OSPF: Enterprise Open Shortest Path First
+
+OSPF NETWORK:
+R4:
+config t
+int lo 0
+ip add 4.4.4.4 255.255.255.255
+router ospf 1
+network 4.4.4.4 0.0.0.0 area 34
+network 10.1.1.8 0.0.0.3 area 34
+
+R3:
+config t
+int lo 0
+ip add 3.3.3.3 255.255.255.255
+router ospf 1
+network 3.3.3.3 0.0.0.0 area 34
+network 10.1.1.4 0.0.0.3 area 0
+network 10.1.1.8 0.0.0.3 area 34
+
+R2:
+config t
+int lo 0
+ip add 2.2.2.2 255.255.255.255
+router ospf 1
+network 2.2.2.2 0.0.0.0 area 0
+network 10.1.1.4 0.0.0.3 area 0
+network 10.1.1.0 0.0.0.3 area 12
+
+R1:
+config t
+int lo 0
+ip add 1.1.1.1 255.255.255.255
+router ospf 1
+network 1.1.1.1 0.0.0.0 area 12
+network 10.1.1.0 0.0.0.3 area 12
+
+How to Check if OSPF is WORKING
+
+1. show ip protocols
+	r3/r2: tatlo ang "routing for networks!"
+2. show ip ospf neighbor
+	good:: FULL, bad:"
+3. show ip ospf database
+4. show ip ospf route ospf
+
+
+
+TASK7: BASIC eBGP FOR ISPS and R1.
+
+How to config RealWorld BGP:
+
+R1 BGP:
+config t
+router bgp 1
+ bgp log-neighbor-changes
+ neighbor 208.8.8.4 remote-as 45
+ neighbor 207.7.7.2 remote-as 2
+ neighbor 209.9.9.3 remote-as 3
+ network 10.0.0.0 Mask 255.255.255.252
+ network 207.7.7.0
+ network 208.8.8.0
+ network 209.9.9.0
+end
+@@@ISP1:
+CONFIG T
+router bgp 45
+bgp log-neighbor-changes
+neighbor 24.2.4.2 remote-as 2
+neighbor 45.4.5.5 remote-as 45
+neighbor 208.8.8.1 remote-as 1
+network 208.8.8.0
+network 24.2.4.0 mask 255.255.255.0
+network 44.44.44.44 mask 255.255.255.255
+network 45.4.5.0 mask 255.255.255.0
+!PretentInternet
+network 0.0.0.0
+ip route 0.0.0.0 0.0.0.0 null 0
+ip route 10.0.0.0 255.0.0.0 208.8.8.1
+end
+
+@@@ISP2:
+config t
+router bgp 2
+bgp log-neighbor-changes
+neighbor 24.2.4.4 remote-as 45
+neighbor 25.2.5.5 remote-as 45
+neighbor 32.3.2.3 remote-as 3
+neighbor 207.7.7.1 remote-as 1
+network 207.0.0.0
+network 22.22.22.22 mask 255.255.255.255
+network 24.2.4.0 mask 255.255.255.0
+network 25.2.5.0 mask 255.255.255.0
+network 32.3.2.0 mask 255.255.255.0
+!fakeInternet
+network 0.0.0.0
+ip route 0.0.0.0 0.0.0.0 null 0
+ip route 10.0.0.0 255.0.0.0 207.7.7.1
+end
+@@ISP3:
+CONFIG T
+router bgp 3
+bgp log-neighbor-changes
+neighbor 32.3.2.2 remote-as 2
+neighbor 35.3.5.5 remote-as 45
+neighbor 209.9.9.1 remote-as 1
+network 209.9.9.0
+network 32.3.2.0 mask 255.255.255.0
+network 33.33.33.33 mask 255.255.255.255
+network 35.3.5.0 mask 255.255.255.0
+network 0.0.0.0
+ip route 0.0.0.0 0.0.0.0 null 0
+ip route 10.0.0.0 255.0.0.0 209.9.9.1
+end
+
+Isp4:
+config t
+int lo 8
+ ip add 8.8.8.8 255.255.255.255
+router bgp 45
+ bgp log-neighbor-changes
+ neighbor 25.2.5.2 remote-as 2
+ neighbor 35.3.5.3 remote-as 3
+ neighbor 45.4.5.4 remote-as 45
+ network 8.8.8.8 mask 255.255.255.255
+ network 55.55.55.55 mask 255.255.255.255
+ network 25.2.5.0 mask 255.255.255.0
+ network 35.3.5.0 mask 255.255.255.0
+ network 45.4.5.0 mask 255.255.255.0
+end
+
+
+How to Check BGP real world:
+
+1. show ip BGP neighbor 
+
+2. show ip BGP summary
+
+3. show route bgp
+
+
+Task 11: Protocol 
+
+@R4
+conf t
+router ospf 1
+redistribute eigrp 100 subnets
+
+step2: Basag OSF and pasok sa EIGRP: O -> DEX
+@R4
+conf t
+router eigrp 100
+redistribute ospf 1 metric 10000 100 255 1 1500
+
+
+Task 12: Routing: Static, eigrp, ospf, bgp, protocolredist vs Site to Site VPN
+
+Routing: Fast, Stable, dedicated = Very Expensive
+
+Site to Site VPN: Super Mura
+
+What is VPN: 	encryption 	+ 		hashing 	+ 	tunneling
+	     	Symetric  	 		sha11/sha5		ipsec, GRE, PPTP
+		asymetric			sha256
+		"AES128/256"
+
+IP Address
+JPLINUX: 
+sudo ifconfig eth0 10.10.10.10 netmask 255.255.255.0 up
+sudo route add default gw 10.10.10.1
+netstat -rn
+
+PHLINUX: 
+sudo ifconfig eth0 10.20.20.20 netmask 255.255.255.0 up
+sudo route add default gw 10.20.20.1
+netstat -rn
+
+
+VMware
+open -> csr1000v-universalk9.16.09.05
+
+name: JPVPN
+depoloyment option: small
+Routername: JPN
+uname: admin
+passwd: password
+change network adapter: JPVPN: nat, custom vmnet1, vmnet2
+
+open -> csr1000v-universalk9.16.09.05
+name: PHVPN
+depoloyment option: small
+Routername: PHVPN
+uname: admin
+passwd: password
+change network adapter: PHVPN: nat, custom vmnet2, vmnet4
+
+
+open -> yVM.ova
+
+JPLinux
+change network adapter: vmnet3 host only
+memory 256mb
+
+PHLinux
+change network adapter: vmnet4 host only
+memory 256mb
+
+STEP2
+Configure jpvpn
+conf t
+no logging console
+no ip domain-lookup
+int gi 2
+no shut
+ip add 192.168.102.10 255.255.255.0
+do sh ip int br
+
+Configure PHvpn
+conf t
+no logging console
+no ip domain-lookup
+int gi 2
+no shut
+ip add 192.168.102.10 255.255.255.0
+do sh ip int br
+
+
+add tunnel IP 
+
+JP
+172.16.10.10 
+remote peer IP 200.0.0.20
+remote subnets: 10.20.20.0
+
+PH
+172.16.10.20 
+remote peer IP 200.0.0.10
+remote subnets: 10.10.10.0
+
+
+
+
+preshared key: vpntunnel
+
+
+ansible
+
+
+
+sudo su
+cd rivan
+nano analog.yml
+ansible-playbook run_all.yml

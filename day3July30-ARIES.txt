@@ -245,7 +245,7 @@ What is VPN: 	encryption 	+ 		hashing 	+ 	tunneling
 	     	Symetric  	 		sha11/sha5		ipsec, GRE, PPTP
 		asymetric			sha256
 		"AES128/256"
-
+VPN = 1. tunnel 2. hash 3. encryption
 IP Address
 JPLINUX: 
 sudo ifconfig eth0 10.10.10.10 netmask 255.255.255.0 up
@@ -263,7 +263,7 @@ open -> csr1000v-universalk9.16.09.05
 
 name: JPVPN
 depoloyment option: small
-Routername: JPN
+Routername: JPVPN
 uname: admin
 passwd: password
 change network adapter: JPVPN: nat, custom vmnet1, vmnet2
@@ -319,15 +319,10 @@ PH
 remote peer IP 200.0.0.10
 remote subnets: 10.10.10.0
 
-
-
-
 preshared key: vpntunnel
 
 
 ansible
-
-
 
 sudo su
 cd rivan

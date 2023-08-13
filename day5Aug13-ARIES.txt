@@ -1,0 +1,173 @@
+DAY5 08132023
+
+802.1q - DTP (Dynamic Trunking Protocol)
+trunk encapsulation dot1q = is used for Layer3 switch
+
+int range fa0/10-12
+switchport trunk encapsulation dot1q
+switchport mode trunk
+
+
+802.1D - STP (Spanning Tree Protocol) - Prevents Loop
+conf t
+no spanning-tree vlan 1
+no spanning-tree vlan 100
+
+conf t
+spanning-tree vlan 1
+spanning-tree vlan 100
+
+sh spanning-tree vlan 1
+
+SWTaas: f025.72e9.7b00
+SWbaba: 0817.350e.2180
+
+How to determine the Root Bridge or "Boss of the Switches"
+1. Bridge Priority - 32768 (default) 
+2. Lowest MAC Wins - 
+3. 
+
+Election of Port Priority (lowest Wins)
+1. Port Priority 128
+2. Cost - Giga-4, FastEthernet - 19
+3. Port Number 
+
+
+conf t 
+spanning-tree vlan 1 priority 8192
+sh spanning-tree vlan 1
+
+result
+Root ID    Priority    8193 (8192 + Vlan 1)
+
+conf t
+spanning-tree vlan 1 priority root-primary
+
+
+802.1W - RSTP (Rapid-STP) = Almost no DOWNTIME
+
+ROOT Bridge
+conf   t 
+spanning-tree mode rapid-pvst
+spanning-tree backbonefast
+int range fa0/1-8
+switchport mode access
+spanning-tree portfast
+
+ALALAY/NON-ROOT
+conf t
+spanning-tree mode rapid-pvst
+spanning-tree uplinkfast
+int range fa0/1-8
+switchport mode access
+spanning-tree portfast
+
+Port Security
+conf t
+int fa0/1
+switchport port-security
+switchport port-security mac-address sticky
+switchport port-security maximum 1
+switchport port-security violation shutdown
+
+show port-security address
+show int status err-disable
+
+shut
+no shut
+
+
+ETHERCHANNEL
+conf t
+int range fa0/10-12
+shut
+channel-group 1 mode active
+channel-protocol lacp
+no shut
+
+int port-channel 1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+
+sh etherchannel summary
+sh int po1 |inc BW
+
+CORE2/SW2
+
+conf t
+int range fa0/7-10
+sw trunk encapsulation dot1q
+switchport mode trunk
+
+do sh int trunk
+
+
+conf t
+int vlan 1
+no shutdown
+ip add 10.0.0.2 255.0.0.0
+do ping 10.0.0.1
+
+int fa0/12
+ip address 200.0.0.1 255.255.255.0
+exit
+
+ip routing 
+router eigrp 100
+no auto-summary
+network 10.0.0.0
+network 200.0.0.0
+end
+
+conf t
+int gi0/0/0
+no shut 
+ip add 100.0.0.2 255.255.255.0
+
+int gi0/0/1
+no shut
+ip add 200.0.0.2 255.255.255.0
+
+int loopback 0
+ip add 8.8.8.8 255.255.255.255
+
+router eigrp 100
+network 100.0.0.0
+network 200.0.0.0
+network 8.8.8.8
+end
+
+
+HSRP (Hot Standby Routing Protocol)
+
+CORE1
+conf t
+int vlan 1
+standby 1 ip 10.0.0.1
+standby 1 preempt  		!!! preempt means it will be automatically set as primary again once there's downtime
+standby 1 priority 150
+
+CORE2
+conf t
+int vlan 1
+standby 1 ip 10.0.0.1
+standby 1 priority 100
+
+sh standby br
+
+LOAD BALANCE
+
+CORE1
+conf t
+int vlan 2
+standby 2 ip 11.0.0.1
+standby 2 preempt  		!!! preempt means it will be automatically set as primary again once there's downtime
+standby 2 priority 100
+
+CORE2
+conf t
+int vlan 2
+standby 2 ip 11.0.0.1
+standby 2 priority 150
+
+
